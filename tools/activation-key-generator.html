@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>AJ's Eatery — Activation Key Generator</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #F5F5F5;
+    display: flex;
+    justify-content: center;
+    padding: 48px 16px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 32px;
+    width: 100%;
+    max-width: 420px;
+  }
+  h1 {
+    font-size: 18px;
+    margin: 0 0 4px;
+  }
+  p.sub {
+    color: #757575;
+    font-size: 13px;
+    margin: 0 0 24px;
+  }
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+  }
+  input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .output {
+    margin-top: 20px;
+  }
+  .code-box {
+    margin-top: 8px;
+    background: #F5F5F5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .code-text {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  button {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #eee;
+  }
+  .hint {
+    font-size: 12px;
+    color: #9e9e9e;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Activation Key Generator</h1>
+    <p class="sub">Enter a device ID to generate its matching activation code.</p>
+
+    <label for="deviceId">Device ID</label>
+    <input type="text" id="deviceId" placeholder="e.g. AB3F-92K1" autocomplete="off" />
+
+    <div class="output">
+      <label>Activation Code</label>
+      <div class="code-box">
+        <span class="code-text" id="codeOutput">—</span>
+        <button id="copyBtn">Copy</button>
+      </div>
+      <p class="hint" id="copyHint"></p>
+    </div>
+  </div>
+
+<script>
+  const CODE_SALT = 'AJSEATERY-2026';
+
+  function hashString(input) {
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < input.length; i++) {
+      hash ^= input.charCodeAt(i);
+      hash = Math.imul(hash, 0x01000193);
+    }
+    return hash >>> 0;
+  }
+
+  function deriveActivationCode(deviceId) {
+    const hash = hashString(`${CODE_SALT}:${deviceId.trim().toUpperCase()}`);
+    const code = hash.toString(36).toUpperCase().padStart(8, '0').slice(0, 8);
+    return `${code.slice(0, 4)}-${code.slice(4, 8)}`;
+  }
+
+  const input = document.getElementById('deviceId');
+  const output = document.getElementById('codeOutput');
+  const copyBtn = document.getElementById('copyBtn');
+  const copyHint = document.getElementById('copyHint');
+
+  function update() {
+    const value = input.value.trim();
+    output.textContent = value ? deriveActivationCode(value) : '—';
+    copyHint.textContent = '';
+  }
+
+  input.addEventListener('input', update);
+
+  copyBtn.addEventListener('click', async () => {
+    const text = output.textContent;
+    if (!text || text === '—') return;
+    try {
+      await navigator.clipboard.writeText(text);
+      copyHint.textContent = 'Copied to clipboard.';
+    } catch (e) {
+      copyHint.textContent = 'Could not copy automatically — select and copy manually.';
+    }
+  });
+</script>
+</body>
+</html>
