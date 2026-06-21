@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { Card, Button, Text, Divider, ActivityIndicator, Snackbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
+import { ScreenHeader } from '../../../src/components/ScreenHeader';
 import { useKitchenOrders } from '../../../src/hooks/useOrders';
 import { KitchenOrder } from '../../../src/types';
 import { formatRelativeTime } from '../../../src/utils/dateHelpers';
@@ -29,15 +30,17 @@ export default function KitchenScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.header}>
-        <Text variant="headlineSmall" style={styles.title}>Kitchen Queue</Text>
-        <View style={styles.headerRight}>
-          {loading && <ActivityIndicator color={COLORS.primary} size="small" />}
-          <Text style={styles.count}>
-            {orders.length} order{orders.length !== 1 ? 's' : ''}
-          </Text>
-        </View>
-      </View>
+      <ScreenHeader
+        title="Kitchen Queue"
+        right={
+          <View style={styles.headerRight}>
+            {loading && <ActivityIndicator color="#fff" size="small" />}
+            <Text style={styles.count}>
+              {orders.length} order{orders.length !== 1 ? 's' : ''}
+            </Text>
+          </View>
+        }
+      />
 
       <FlatList
         data={orders}
@@ -108,15 +111,6 @@ function KitchenCard({
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: COLORS.primary,
-  },
-  title: { color: '#fff', fontWeight: '800' },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   count: { color: '#ffffff99', fontSize: 14 },
   listContent: { padding: 12, gap: 12 },

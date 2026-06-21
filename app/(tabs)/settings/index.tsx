@@ -6,6 +6,7 @@ import { router, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import * as orderRepository from '../../../src/repositories/orderRepository';
+import { ScreenHeader } from '../../../src/components/ScreenHeader';
 import { COLORS } from '../../../src/constants/colors';
 
 export default function SettingsScreen() {
@@ -32,9 +33,7 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.header}>
-        <Text variant="headlineSmall" style={styles.title}>Settings</Text>
-      </View>
+      <ScreenHeader title="Settings" />
 
       <View style={styles.content}>
         <Card style={styles.card} mode="elevated">
@@ -132,8 +131,6 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
-  header: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12 },
-  title: { fontWeight: '700', color: COLORS.text },
   content: { padding: 12, gap: 12 },
   card: {},
   cardContent: { gap: 4 },

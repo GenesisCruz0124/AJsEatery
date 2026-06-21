@@ -6,6 +6,7 @@ import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSales, getPresetDateRange, SalesPeriod, DateRange } from '../../../src/hooks/useSales';
 import { SalesCard } from '../../../src/components/SalesCard';
+import { ScreenHeader } from '../../../src/components/ScreenHeader';
 import { TopItemsTable } from '../../../src/components/TopItemsTable';
 import { CalendarRangePicker } from '../../../src/components/CalendarRangePicker';
 import { formatCurrency } from '../../../src/utils/currency';
@@ -33,9 +34,7 @@ export default function SalesScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.header}>
-        <Text variant="headlineSmall" style={styles.title}>Sales Report</Text>
-      </View>
+      <ScreenHeader title="Sales Report" />
 
       <ScrollView contentContainerStyle={styles.content}>
         <SegmentedButtons
@@ -96,12 +95,6 @@ export default function SalesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
-  header: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: COLORS.primary,
-  },
-  title: { color: '#fff', fontWeight: '800' },
   content: { padding: 12, gap: 12, paddingBottom: 32 },
   segmented: {},
   rangePicker: {
