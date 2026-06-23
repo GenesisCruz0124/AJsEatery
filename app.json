@@ -10,8 +10,9 @@
     "android": {
       "package": "com.ajseatery.pos",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#C0392B"
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundColor": "#C0392B",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
     },
