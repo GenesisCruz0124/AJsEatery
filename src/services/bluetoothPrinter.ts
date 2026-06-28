@@ -4,8 +4,10 @@ import { formatCurrency } from '../utils/currency';
 import { formatDiningLabel } from '../utils/orderHelpers';
 import { Order, OrderItem } from '../types';
 
+let permissionsGranted = false;
+
 async function ensureBluetoothPermissions(): Promise<void> {
-  if (Platform.OS !== 'android') return;
+  if (Platform.OS !== 'android' || permissionsGranted) return;
 
   const permissions = [
     PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
@@ -20,6 +22,32 @@ async function ensureBluetoothPermissions(): Promise<void> {
   if (denied) {
     throw new Error('Bluetooth permission was not granted. Enable it in Android Settings > Apps > Sales Tracker > Permissions.');
   }
+  permissionsGranted = true;
+}
+
+// Classic Bluetooth's connect handshake takes 1-3s, so the socket is kept open
+// across prints instead of reconnecting every time - only torn down on error
+// or when the target printer address changes.
+let cachedDevice: BluetoothDevice | null = null;
+let cachedAddress: string | null = null;
+
+async function getConnectedDevice(address: string): Promise<BluetoothDevice> {
+  if (cachedDevice && cachedAddress === address) {
+    const stillConnected = await cachedDevice.isConnected().catch(() => false);
+    if (stillConnected) return cachedDevice;
+  }
+  if (cachedDevice && cachedAddress !== address) {
+    await cachedDevice.disconnect().catch(() => {});
+  }
+
+  const alreadyConnected = await RNBluetoothClassic.isDeviceConnected(address);
+  const device = alreadyConnected
+    ? await RNBluetoothClassic.getConnectedDevice(address)
+    : await RNBluetoothClassic.connectToDevice(address);
+
+  cachedDevice = device;
+  cachedAddress = address;
+  return device;
 }
 
 const ESC_INIT = '\x1B\x40';
@@ -70,17 +98,13 @@ export async function listPairedDevices(): Promise<BluetoothDevice[]> {
 export async function connectAndPrint(address: string, order: Order, items: OrderItem[]): Promise<void> {
   await ensureBluetoothPermissions();
   const receipt = buildEscPosReceipt(order, items);
-  let device: BluetoothDevice | null = null;
+  const device = await getConnectedDevice(address);
   try {
-    const alreadyConnected = await RNBluetoothClassic.isDeviceConnected(address);
-    device = alreadyConnected
-      ? await RNBluetoothClassic.getConnectedDevice(address)
-      : await RNBluetoothClassic.connectToDevice(address);
     await device.write(receipt, 'ascii');
-  } finally {
-    if (device) {
-      await device.disconnect().catch(() => {});
-    }
+  } catch (e) {
+    cachedDevice = null;
+    cachedAddress = null;
+    throw e;
   }
 }
 
@@ -98,16 +122,12 @@ export async function sendTestPrint(address: string): Promise<void> {
     ESC_FEED_CUT,
   ].join('');
 
-  let device: BluetoothDevice | null = null;
+  const device = await getConnectedDevice(address);
   try {
-    const alreadyConnected = await RNBluetoothClassic.isDeviceConnected(address);
-    device = alreadyConnected
-      ? await RNBluetoothClassic.getConnectedDevice(address)
-      : await RNBluetoothClassic.connectToDevice(address);
     await device.write(lines, 'ascii');
-  } finally {
-    if (device) {
-      await device.disconnect().catch(() => {});
-    }
+  } catch (e) {
+    cachedDevice = null;
+    cachedAddress = null;
+    throw e;
   }
 }
