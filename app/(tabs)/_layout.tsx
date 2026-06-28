@@ -45,6 +45,10 @@ export default function TabsLayout() {
         options={{ href: null }}
       />
       <Tabs.Screen
+        name="printer/index"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
         name="settings/index"
         options={{ title: 'Settings', tabBarIcon: tabIcon('settings-outline') }}
       />

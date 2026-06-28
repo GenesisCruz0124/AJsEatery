@@ -14,6 +14,8 @@ import { formatDiningLabel } from '../../../../src/utils/orderHelpers';
 import { COLORS } from '../../../../src/constants/colors';
 import { OrderStatus } from '../../../../src/constants/orderStatuses';
 import * as orderRepository from '../../../../src/repositories/orderRepository';
+import * as settingsRepository from '../../../../src/repositories/settingsRepository';
+import { connectAndPrint } from '../../../../src/services/bluetoothPrinter';
 import { Order, OrderItem } from '../../../../src/types';
 
 function pdfFileName(order: Order): string {
@@ -81,6 +83,7 @@ export default function OrderDetailScreen() {
   const [busy, setBusy] = useState(false);
   const [printing, setPrinting] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [btPrinting, setBtPrinting] = useState(false);
 
   async function markServed() {
     setBusy(true);
@@ -106,6 +109,23 @@ export default function OrderDetailScreen() {
       }
     }
     setPrinting(false);
+  }
+
+  async function handleBluetoothPrint() {
+    if (!order) return;
+    setBtPrinting(true);
+    try {
+      const printer = await settingsRepository.getPrinterDevice();
+      if (!printer) {
+        setSnack('No Bluetooth printer set. Pair one in Settings.');
+        return;
+      }
+      await connectAndPrint(printer.address, order, items);
+      setSnack('Sent to Bluetooth printer.');
+    } catch {
+      setSnack('Failed to print via Bluetooth. Check the printer is on and in range.');
+    }
+    setBtPrinting(false);
   }
 
   async function handleExportPdf() {
@@ -198,7 +218,7 @@ export default function OrderDetailScreen() {
                   size={22}
                   onPress={handlePrint}
                   loading={printing}
-                  disabled={printing || exporting}
+                  disabled={printing || exporting || btPrinting}
                   accessibilityLabel="Print order details"
                 />
                 <IconButton
@@ -206,8 +226,16 @@ export default function OrderDetailScreen() {
                   size={22}
                   onPress={handleExportPdf}
                   loading={exporting}
-                  disabled={printing || exporting}
+                  disabled={printing || exporting || btPrinting}
                   accessibilityLabel="Export order details as PDF"
+                />
+                <IconButton
+                  icon="bluetooth"
+                  size={22}
+                  onPress={handleBluetoothPrint}
+                  loading={btPrinting}
+                  disabled={printing || exporting || btPrinting}
+                  accessibilityLabel="Print via Bluetooth printer"
                 />
               </View>
             </View>
