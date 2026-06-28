@@ -28,8 +28,12 @@ export default function PrinterScreen() {
       ]);
       setDevices(paired);
       setSavedAddress(saved?.address ?? null);
-    } catch {
-      setError('Could not access Bluetooth. Make sure Bluetooth is turned on.');
+    } catch (e: any) {
+      if (/permission/i.test(e?.message ?? '')) {
+        setError('Bluetooth permission was not granted. Enable it in Android Settings > Apps > Sales Tracker > Permissions, then come back to this screen.');
+      } else {
+        setError('Could not access Bluetooth. Make sure Bluetooth is turned on.');
+      }
     }
     setLoading(false);
   }, []);

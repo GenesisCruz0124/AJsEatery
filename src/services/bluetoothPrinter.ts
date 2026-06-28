@@ -1,7 +1,26 @@
+import { PermissionsAndroid, Platform } from 'react-native';
 import RNBluetoothClassic, { BluetoothDevice } from 'react-native-bluetooth-classic';
 import { formatCurrency } from '../utils/currency';
 import { formatDiningLabel } from '../utils/orderHelpers';
 import { Order, OrderItem } from '../types';
+
+async function ensureBluetoothPermissions(): Promise<void> {
+  if (Platform.OS !== 'android') return;
+
+  const permissions = [
+    PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+    PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  ].filter(Boolean);
+
+  const results = await PermissionsAndroid.requestMultiple(permissions);
+  const denied = Object.entries(results).some(
+    ([, status]) => status !== PermissionsAndroid.RESULTS.GRANTED
+  );
+  if (denied) {
+    throw new Error('Bluetooth permission was not granted. Enable it in Android Settings > Apps > Sales Tracker > Permissions.');
+  }
+}
 
 const ESC_INIT = '\x1B\x40';
 const ESC_ALIGN_CENTER = '\x1B\x61\x01';
@@ -44,10 +63,12 @@ export function buildEscPosReceipt(order: Order, items: OrderItem[]): string {
 }
 
 export async function listPairedDevices(): Promise<BluetoothDevice[]> {
+  await ensureBluetoothPermissions();
   return RNBluetoothClassic.getBondedDevices();
 }
 
 export async function connectAndPrint(address: string, order: Order, items: OrderItem[]): Promise<void> {
+  await ensureBluetoothPermissions();
   const receipt = buildEscPosReceipt(order, items);
   let device: BluetoothDevice | null = null;
   try {
@@ -64,6 +85,7 @@ export async function connectAndPrint(address: string, order: Order, items: Orde
 }
 
 export async function sendTestPrint(address: string): Promise<void> {
+  await ensureBluetoothPermissions();
   const lines = [
     ESC_INIT,
     ESC_ALIGN_CENTER,
