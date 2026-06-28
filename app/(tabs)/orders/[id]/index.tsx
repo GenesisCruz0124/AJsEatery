@@ -81,7 +81,6 @@ export default function OrderDetailScreen() {
   const { order, items, loading, refresh } = useOrder(Number(id));
   const [snack, setSnack] = useState('');
   const [busy, setBusy] = useState(false);
-  const [printing, setPrinting] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [btPrinting, setBtPrinting] = useState(false);
 
@@ -94,21 +93,6 @@ export default function OrderDetailScreen() {
       setSnack('Failed to update status.');
     }
     setBusy(false);
-  }
-
-  async function handlePrint() {
-    if (!order) return;
-    setPrinting(true);
-    try {
-      const html = buildOrderHtml(order, items);
-      // Sends straight to the OS print dialog / available printer — no PDF file involved.
-      await Print.printAsync({ html });
-    } catch (e: any) {
-      if (!/cancel/i.test(e?.message ?? '')) {
-        setSnack('Failed to print order details.');
-      }
-    }
-    setPrinting(false);
   }
 
   async function handleBluetoothPrint() {
@@ -214,28 +198,20 @@ export default function OrderDetailScreen() {
               <View style={styles.headerActions}>
                 <StatusBadge status={order.status as OrderStatus} />
                 <IconButton
-                  icon="printer-outline"
-                  size={22}
-                  onPress={handlePrint}
-                  loading={printing}
-                  disabled={printing || exporting || btPrinting}
-                  accessibilityLabel="Print order details"
-                />
-                <IconButton
                   icon="file-pdf-box"
                   size={22}
                   onPress={handleExportPdf}
                   loading={exporting}
-                  disabled={printing || exporting || btPrinting}
+                  disabled={exporting || btPrinting}
                   accessibilityLabel="Export order details as PDF"
                 />
                 <IconButton
-                  icon="bluetooth"
+                  icon="printer-outline"
                   size={22}
                   onPress={handleBluetoothPrint}
                   loading={btPrinting}
-                  disabled={printing || exporting || btPrinting}
-                  accessibilityLabel="Print via Bluetooth printer"
+                  disabled={exporting || btPrinting}
+                  accessibilityLabel="Print order details"
                 />
               </View>
             </View>
