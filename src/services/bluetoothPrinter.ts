@@ -31,10 +31,18 @@ async function ensureBluetoothPermissions(): Promise<void> {
 let cachedDevice: BluetoothDevice | null = null;
 let cachedAddress: string | null = null;
 
-async function getConnectedDevice(address: string): Promise<BluetoothDevice> {
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Returns the device plus whether the socket was just opened. Cheap ESC/POS
+// modules (common HC-05/06 based boards) can silently drop the first write
+// sent right after the socket opens, which is why a single print used to
+// require two taps - the connect "succeeded" but the receipt never arrived.
+async function getConnectedDevice(address: string): Promise<{ device: BluetoothDevice; freshlyConnected: boolean }> {
   if (cachedDevice && cachedAddress === address) {
     const stillConnected = await cachedDevice.isConnected().catch(() => false);
-    if (stillConnected) return cachedDevice;
+    if (stillConnected) return { device: cachedDevice, freshlyConnected: false };
   }
   if (cachedDevice && cachedAddress !== address) {
     await cachedDevice.disconnect().catch(() => {});
@@ -47,7 +55,7 @@ async function getConnectedDevice(address: string): Promise<BluetoothDevice> {
 
   cachedDevice = device;
   cachedAddress = address;
-  return device;
+  return { device, freshlyConnected: !alreadyConnected };
 }
 
 const ESC_INIT = '\x1B\x40';
@@ -98,8 +106,9 @@ export async function listPairedDevices(): Promise<BluetoothDevice[]> {
 export async function connectAndPrint(address: string, order: Order, items: OrderItem[]): Promise<void> {
   await ensureBluetoothPermissions();
   const receipt = buildEscPosReceipt(order, items);
-  const device = await getConnectedDevice(address);
+  const { device, freshlyConnected } = await getConnectedDevice(address);
   try {
+    if (freshlyConnected) await delay(300);
     await device.write(receipt, 'ascii');
   } catch (e) {
     cachedDevice = null;
@@ -122,8 +131,9 @@ export async function sendTestPrint(address: string): Promise<void> {
     ESC_FEED_CUT,
   ].join('');
 
-  const device = await getConnectedDevice(address);
+  const { device, freshlyConnected } = await getConnectedDevice(address);
   try {
+    if (freshlyConnected) await delay(300);
     await device.write(lines, 'ascii');
   } catch (e) {
     cachedDevice = null;
