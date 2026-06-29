@@ -37,7 +37,7 @@ export default function TabsLayout() {
         options={{ href: null }}
       />
       <Tabs.Screen
-        name="transactions/index"
+        name="transactions"
         options={{ title: 'Transactions', tabBarIcon: tabIcon('card-outline') }}
       />
       <Tabs.Screen

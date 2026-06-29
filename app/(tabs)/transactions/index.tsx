@@ -42,7 +42,7 @@ export default function TransactionsScreen() {
           data={orders}
           keyExtractor={(o) => o.id.toString()}
           renderItem={({ item }) => (
-            <Card style={styles.card} mode="elevated" onPress={() => router.push(`/orders/${item.id}`)}>
+            <Card style={styles.card} mode="elevated" onPress={() => router.push(`/transactions/${item.id}`)}>
               <Card.Content style={styles.content}>
                 <View style={styles.topRow}>
                   <Text variant="titleMedium" style={styles.orderNum}>{item.order_number}</Text>
