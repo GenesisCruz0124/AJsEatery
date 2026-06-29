@@ -32,7 +32,8 @@
           "photosPermission": "Allow Sales Tracker to access your photos for product images."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "./plugins/withCropTheme.js"
     ],
     "experiments": {
       "typedRoutes": true
