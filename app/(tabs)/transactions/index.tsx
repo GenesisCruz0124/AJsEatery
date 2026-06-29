@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlatList, StyleSheet, View, Image, Pressable } from 'react-native';
 import { Text, Card, Chip, ActivityIndicator, Portal, Modal } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { ScreenHeader } from '../../../src/components/ScreenHeader';
 import { useTransactions } from '../../../src/hooks/useOrders';
@@ -42,7 +42,7 @@ export default function TransactionsScreen() {
           data={orders}
           keyExtractor={(o) => o.id.toString()}
           renderItem={({ item }) => (
-            <Card style={styles.card} mode="elevated">
+            <Card style={styles.card} mode="elevated" onPress={() => router.push(`/orders/${item.id}`)}>
               <Card.Content style={styles.content}>
                 <View style={styles.topRow}>
                   <Text variant="titleMedium" style={styles.orderNum}>{item.order_number}</Text>

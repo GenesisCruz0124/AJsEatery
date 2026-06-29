@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Card, Divider, IconButton, Text, ActivityIndicator, Snackbar } from 'react-native-paper';
+import { ScrollView, StyleSheet, View, Image, Pressable } from 'react-native';
+import { Button, Card, Divider, IconButton, Text, ActivityIndicator, Snackbar, Portal, Modal } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { cacheDirectory, copyAsync, deleteAsync } from 'expo-file-system/legacy';
@@ -83,6 +84,7 @@ export default function OrderDetailScreen() {
   const [busy, setBusy] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [btPrinting, setBtPrinting] = useState(false);
+  const [viewerUri, setViewerUri] = useState<string | null>(null);
 
   async function markServed() {
     setBusy(true);
@@ -177,11 +179,20 @@ export default function OrderDetailScreen() {
       );
     }
     if (order.status === 'paid') {
+      const isGcash = order.payment_type === 'gcash';
       return (
         <View style={styles.paidBanner}>
-          <Text style={styles.paidText}>
-            Paid {order.paid_at ? `• Change ₱${(order.change_due ?? 0).toFixed(2)}` : ''}
-          </Text>
+          <Text style={styles.paidText}>Paid via {isGcash ? 'GCash' : 'Cash'}</Text>
+          {!isGcash && (
+            <Text style={styles.paidDetail}>
+              Tendered {formatCurrency(order.cash_tendered ?? 0)} · Change {formatCurrency(order.change_due ?? 0)}
+            </Text>
+          )}
+          {order.payment_proof_uri && (
+            <Pressable onPress={() => setViewerUri(order.payment_proof_uri)}>
+              <Image source={{ uri: order.payment_proof_uri }} style={styles.proofThumb} resizeMode="cover" />
+            </Pressable>
+          )}
         </View>
       );
     }
@@ -246,6 +257,21 @@ export default function OrderDetailScreen() {
       </ScrollView>
 
       <Snackbar visible={!!snack} onDismiss={() => setSnack('')}>{snack}</Snackbar>
+
+      <Portal>
+        <Modal
+          visible={!!viewerUri}
+          onDismiss={() => setViewerUri(null)}
+          contentContainerStyle={styles.viewerContainer}
+        >
+          <Pressable style={styles.viewerClose} onPress={() => setViewerUri(null)}>
+            <Ionicons name="close" size={26} color="#fff" />
+          </Pressable>
+          {viewerUri && (
+            <Image source={{ uri: viewerUri }} style={styles.viewerImage} resizeMode="contain" />
+          )}
+        </Modal>
+      </Portal>
     </SafeAreaView>
   );
 }
@@ -274,6 +300,20 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     alignItems: 'center',
+    gap: 6,
   },
   paidText: { color: '#2E7D32', fontWeight: '700', fontSize: 16 },
+  paidDetail: { color: '#2E7D32', fontSize: 13 },
+  proofThumb: { width: 220, height: 140, borderRadius: 8, marginTop: 4 },
+  viewerContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.92)', justifyContent: 'center' },
+  viewerImage: { width: '100%', height: '80%' },
+  viewerClose: {
+    position: 'absolute',
+    top: 48,
+    right: 24,
+    zIndex: 1,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 20,
+    padding: 8,
+  },
 });
