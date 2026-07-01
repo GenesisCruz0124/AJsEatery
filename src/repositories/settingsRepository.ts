@@ -53,3 +53,22 @@ export async function activateWithCode(code: string): Promise<boolean> {
   await setSetting('activated_at', new Date().toISOString());
   return true;
 }
+
+export interface PrinterDevice {
+  address: string;
+  name: string;
+}
+
+export async function getPrinterDevice(): Promise<PrinterDevice | null> {
+  const raw = await getSetting('printer_device');
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as PrinterDevice;
+  } catch {
+    return null;
+  }
+}
+
+export async function savePrinterDevice(address: string, name: string): Promise<void> {
+  await setSetting('printer_device', JSON.stringify({ address, name }));
+}

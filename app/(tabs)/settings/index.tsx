@@ -6,6 +6,7 @@ import { router, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import * as orderRepository from '../../../src/repositories/orderRepository';
+import { ScreenHeader } from '../../../src/components/ScreenHeader';
 import { COLORS } from '../../../src/constants/colors';
 
 export default function SettingsScreen() {
@@ -32,9 +33,7 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.header}>
-        <Text variant="headlineSmall" style={styles.title}>Settings</Text>
-      </View>
+      <ScreenHeader title="Settings" />
 
       <View style={styles.content}>
         <Card style={styles.card} mode="elevated">
@@ -60,6 +59,19 @@ export default function SettingsScreen() {
               <View style={styles.rowText}>
                 <Text style={styles.rowTitle}>Activation</Text>
                 <Text style={styles.rowSub}>View trial status and activate this device</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+            </Pressable>
+            <Pressable
+              style={styles.row}
+              onPress={() => router.push('/printer' as Parameters<typeof router.push>[0])}
+            >
+              <View style={styles.rowIcon}>
+                <Ionicons name="bluetooth-outline" size={20} color={COLORS.primary} />
+              </View>
+              <View style={styles.rowText}>
+                <Text style={styles.rowTitle}>Bluetooth Printer</Text>
+                <Text style={styles.rowSub}>Pair and select a receipt printer</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
             </Pressable>
@@ -132,8 +144,6 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
-  header: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12 },
-  title: { fontWeight: '700', color: COLORS.text },
   content: { padding: 12, gap: 12 },
   card: {},
   cardContent: { gap: 4 },

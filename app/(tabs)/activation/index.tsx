@@ -6,6 +6,7 @@ import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { useActivation } from '../../../src/hooks/useActivation';
+import { ScreenHeader } from '../../../src/components/ScreenHeader';
 import { COLORS } from '../../../src/constants/colors';
 import { TRIAL_DAYS } from '../../../src/constants/activation';
 
@@ -41,9 +42,7 @@ export default function ActivationScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.header}>
-        <Text variant="headlineSmall" style={styles.title}>Activation</Text>
-      </View>
+      <ScreenHeader title="Activation" />
 
       <View style={styles.content}>
         <Card style={styles.statusCard} mode="elevated">
@@ -137,8 +136,6 @@ export default function ActivationScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12 },
-  title: { fontWeight: '700', color: COLORS.text },
   content: { padding: 12, gap: 12 },
   statusCard: {},
   statusContent: { alignItems: 'center', gap: 6, paddingVertical: 8 },

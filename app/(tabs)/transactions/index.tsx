@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { FlatList, StyleSheet, View, Image, Pressable } from 'react-native';
 import { Text, Card, Chip, ActivityIndicator, Portal, Modal } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { ScreenHeader } from '../../../src/components/ScreenHeader';
 import { useTransactions } from '../../../src/hooks/useOrders';
 import { Order } from '../../../src/types';
 import { formatCurrency } from '../../../src/utils/currency';
@@ -30,9 +31,7 @@ export default function TransactionsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.header}>
-        <Text variant="headlineSmall" style={styles.title}>Transactions</Text>
-      </View>
+      <ScreenHeader title="Transactions" />
 
       {loading && orders.length === 0 ? (
         <View style={styles.center}>
@@ -43,7 +42,7 @@ export default function TransactionsScreen() {
           data={orders}
           keyExtractor={(o) => o.id.toString()}
           renderItem={({ item }) => (
-            <Card style={styles.card} mode="elevated">
+            <Card style={styles.card} mode="elevated" onPress={() => router.push(`/transactions/${item.id}`)}>
               <Card.Content style={styles.content}>
                 <View style={styles.topRow}>
                   <Text variant="titleMedium" style={styles.orderNum}>{item.order_number}</Text>
@@ -98,8 +97,6 @@ export default function TransactionsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12 },
-  title: { fontWeight: '700', color: COLORS.text },
   card: { marginHorizontal: 12, marginVertical: 6 },
   content: { gap: 6 },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

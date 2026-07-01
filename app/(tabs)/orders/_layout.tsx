@@ -8,6 +8,7 @@ export default function OrdersLayout() {
         headerStyle: { backgroundColor: COLORS.primary },
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: '700' },
+        animation: 'none',
       }}
     >
       <Stack.Screen name="index" options={{ title: 'Active Orders' }} />

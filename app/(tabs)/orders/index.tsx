@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { FAB, Text, ActivityIndicator } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { OrderCard } from '../../../src/components/OrderCard';
+import { ScreenHeader } from '../../../src/components/ScreenHeader';
 import { TrialLockDialog } from '../../../src/components/TrialLockDialog';
 import { useActiveOrders } from '../../../src/hooks/useOrders';
 import { useActivation } from '../../../src/hooks/useActivation';
@@ -28,7 +29,9 @@ export default function ActiveOrdersScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <Stack.Screen options={{ headerShown: false }} />
+      <ScreenHeader title="Orders" />
       <FlatList
         data={orders}
         keyExtractor={(o) => o.id.toString()}

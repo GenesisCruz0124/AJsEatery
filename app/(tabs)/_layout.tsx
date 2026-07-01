@@ -37,11 +37,15 @@ export default function TabsLayout() {
         options={{ href: null }}
       />
       <Tabs.Screen
-        name="transactions/index"
+        name="transactions"
         options={{ title: 'Transactions', tabBarIcon: tabIcon('card-outline') }}
       />
       <Tabs.Screen
         name="activation/index"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="printer/index"
         options={{ href: null }}
       />
       <Tabs.Screen

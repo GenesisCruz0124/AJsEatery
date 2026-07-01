@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View, Image } from 'react-native';
 import { FAB, Text, Switch, Divider, ActivityIndicator, Snackbar, Dialog, Portal, Button, IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useNavigation } from 'expo-router';
+import { router, useFocusEffect, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAllMenuItems } from '../../../src/hooks/useMenu';
 import { useActivation } from '../../../src/hooks/useActivation';
@@ -33,6 +33,12 @@ export default function MaintenanceScreen() {
   const filteredItems = useMemo(
     () => (availableOnly ? items.filter((i) => i.is_available === 1) : items),
     [items, availableOnly]
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
   );
 
   useEffect(() => {
